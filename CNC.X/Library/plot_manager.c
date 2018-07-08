@@ -25,6 +25,7 @@ long int z_count;
 long int x_increment;
 long int y_increment;
 long int z_increment;
+long int z_drop;
 int x_done;
 int y_done;
 int z_done;
@@ -40,11 +41,21 @@ int exit_z_counter;
 int reseting;
 int exiting_stops;
 int executing;
+int probing;
+
+long int x_start_probe;
+long int y_start_probe;
+long int z_start_probe;
+long int x_end_probe;
+long int y_end_probe;
+long int z_end_probe;
+int gridsize;
 
 void reset_position(){
     reseting = 1;
     exiting_stops = 0;
     executing = 0;
+    probing = 0;
     int n;
     set_um_per_sec_x(max_um_per_sec_translating, n_microsteps);
     set_um_per_sec_y(max_um_per_sec_translating, n_microsteps);
@@ -207,10 +218,38 @@ void reset_position(){
     else if(DEBUG) printf("Reset procedure interrupted\n\n");
 }
 
+void probe(){
+    executing = 0;
+    exiting_stops = 0;
+    reseting = 0;
+    probing = 1;
+    
+    z_count = 0;
+    //A ponta deve estar a menos de 30mm (30000um) da placa para
+    //avaliar a sua posicao, mais que isso leva demasiado tempo
+    z_increment = (long) n_microsteps*200*30000/UM_PER_TURN;
+    z_done = 0;
+    z_interrupted = 0;
+    set_um_per_sec_z(max_um_per_sec_translating, n_microsteps);
+    Z_DOWN;
+    ENABLE_Z_AXIS;
+    ENABLE_CLOCK_Z;
+    if (DEBUG) printf("probing\n");
+    while(z_done == 0){}
+    DISABLE_Z_AXIS;
+    DISABLE_CLOCK_Z;
+    //z_to_origin = fazer conta com z_count;
+    //z_absolute = fazer conta com z_count;
+    z_drop = z_count*UM_PER_TURN/(2.*n_microsteps*200);
+    //printf("%ld",z_drop);
+    z_count = 0;
+}
+
 void execute(){
     executing = 1;
     exiting_stops = 0;
     reseting = 0;
+    probing = 0;
     int n;
     if (DEBUG) printf("executing\n");
     long long int long_long_buffer1, long_long_buffer2, long_long_buffer3;

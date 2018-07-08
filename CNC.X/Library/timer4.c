@@ -53,6 +53,12 @@ void __attribute__((__interrupt__,auto_psv)) _T4Interrupt(void){
         DISABLE_Z_AXIS;
         DISABLE_CLOCK_Z;
     }
+    
+    if(!(z_count%2) && probing && TOOL_TOUCHING_BOARD){
+        z_done = 1;
+        DISABLE_Z_AXIS;
+        DISABLE_CLOCK_Z;
+    }
 
     if(exiting_stops && z_count == EXIT_THRESHOLD){
         DISABLE_Z_AXIS;
@@ -69,7 +75,7 @@ void __attribute__((__interrupt__,auto_psv)) _T4Interrupt(void){
 //        }
 //        else exit_z_counter = 0;
     }
-    else if((ON_BEGINNING_OF_Z_AXIS||ON_END_OF_Z_AXIS) && (/*reseting || */executing)){
+    else if((ON_BEGINNING_OF_Z_AXIS||ON_END_OF_Z_AXIS) && (/*reseting || */executing || probing)){
         z_interrupted++;
         if(z_interrupted >= DIGITAL_FILTER_COUNTER){
             DISABLE_Z_AXIS;
@@ -78,7 +84,7 @@ void __attribute__((__interrupt__,auto_psv)) _T4Interrupt(void){
         //if(DEBUG) printf("Z ON STOPS!\n");
         //if(executing) printf("err!");
     }
-    else if(!(ON_BEGINNING_OF_Z_AXIS||ON_END_OF_Z_AXIS) && (/*reseting ||*/ executing)){
+    else if(!(ON_BEGINNING_OF_Z_AXIS||ON_END_OF_Z_AXIS) && (/*reseting ||*/ executing || probing)){
         z_interrupted = 0;
     }
 }

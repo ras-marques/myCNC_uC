@@ -26,7 +26,8 @@ void interface(){
                 printf("-Use 'next_xyz_absolute' to set the next absolute point\n");
                 //printf("-Use 'diff' to set the next differential point\n");
                 //printf("-Use 'exe' to execute the next differential point\n\n");
-                printf("-Use 'exe' to execute the next point\n\n");
+                printf("-Use 'exe' to execute the next point\n");
+                printf("-Use 'exeprobe' to probe a conductive surface\n\n");
                 printf("-Use 'readback_rel' to print the next relative point\n");
                 printf("-Use 'readback_abs' to print the next absolute point\n");
                 printf("-Use 'reset' to return the tip to the origin of the referential\n");
@@ -187,6 +188,14 @@ void interface(){
                 x_absolute = next_x_absolute;
                 y_absolute = next_y_absolute;
                 z_absolute = next_z_absolute;
+                if(DEBUG) printf("\nNew command: ");
+            }
+            else if(strncmp(RXbuffer,"exeprobe",8) == 0 && str_pos == 9){
+                purge_RXbuffer();               //Limpa o RX_buffer();
+                probe();
+                z_to_origin = z_to_origin - z_drop;
+                z_absolute = z_absolute - z_drop;
+                printf("%ld!",z_absolute);
                 if(DEBUG) printf("\nNew command: ");
             }
             else if(strncmp(RXbuffer,"readback_rel",12) == 0 && str_pos == 13){
