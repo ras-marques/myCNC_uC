@@ -119,7 +119,7 @@ void reset_position(){
             DISABLE_CLOCK_Y;
             DISABLE_Z_AXIS;
             DISABLE_CLOCK_Z;
-            if(DEBUG) printf("ON_RESET\n");
+            printf("ON_RESET!");
             break;
         }
 
