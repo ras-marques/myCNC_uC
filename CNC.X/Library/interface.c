@@ -21,8 +21,8 @@ void interface(){
                 printf("-Use 'tranlatingspeed' to configure the speed at which the\n");
                 printf("machine moves in micrometers per second when not milling\n");
                 printf("-Use 'set_xy_absolute' to set the current xy absolute position\n");
-                printf("-Use 'set_xy_origin' to set the origin of the xy axes to the current xy position\n");
-                printf("-Use 'set_z_origin' to set the origin of the z axis to the current z position\n");
+                printf("-Use 'set_xy_origin' to set the origin of the xy axes\n");
+                printf("-Use 'set_z_origin' to set the origin of the z axis\n");
                 printf("-Use 'next_xyz_to_origin' to set the next relative point\n");
                 printf("-Use 'next_xyz_absolute' to set the next absolute point\n");
                 //printf("-Use 'diff' to set the next differential point\n");
@@ -128,13 +128,45 @@ void interface(){
                 }
             }
             else if(strncmp(RXbuffer,"set_xy_origin",13) == 0 && str_pos == 14){
-                x_origin = x_absolute;
-                y_origin = y_absolute;
+                purge_RXbuffer();               //Limpa o RX_buffer();
+                if(DEBUG) printf("Insert the xy origin in micrometers, in the format (x,y)\n");
+                while(1){
+                    if(RXbuffer[str_pos-1]==13){
+                        sscanf(RXbuffer,"(%s,%s)",buffer1,buffer2);
+                        if(isnumber(buffer1) != 1) printf("%s is not a number\n",buffer1);
+                        if(isnumber(buffer2) != 1) printf("%s is not a number\n",buffer2);
+                        if(isnumber(buffer1) == 1 && isnumber(buffer2) == 1){
+                            sscanf(buffer1,"%ld",&x_origin);
+                            sscanf(buffer2,"%ld",&y_origin);
+                            if(DEBUG) printf("\n\nThe values read were (%ld,%ld)\n\n",
+                                    x_origin,
+                                    y_origin);
+                        }
+                        purge_RXbuffer();
+                        if(DEBUG) printf("\nNew command: ");
+                        break;
+                    }
+                }
                 if(DEBUG) printf("Origin set to (%ld,%ld,%ld)\n", x_origin,y_origin,z_origin);
                 if(DEBUG) printf("\nNew command: ");
             }
             else if(strncmp(RXbuffer,"set_z_origin",12) == 0 && str_pos == 13){
-                z_origin = z_absolute;
+                purge_RXbuffer();               //Limpa o RX_buffer();
+                if(DEBUG) printf("Insert the z origin in micrometers, in the format (z)\n");
+                while(1){
+                    if(RXbuffer[str_pos-1]==13){
+                        sscanf(RXbuffer,"(%s)",buffer1);
+                        if(isnumber(buffer1) != 1) printf("%s is not a number\n",buffer1);
+                        if(isnumber(buffer1) == 1){
+                            sscanf(buffer1,"%ld",&z_origin);
+                            if(DEBUG) printf("\n\nThe value read was (%ld)\n\n",
+                                    z_origin);
+                        }
+                        purge_RXbuffer();
+                        if(DEBUG) printf("\nNew command: ");
+                        break;
+                    }
+                }
                 if(DEBUG) printf("Origin set to (%ld,%ld,%ld)\n", x_origin,y_origin,z_origin);
                 if(DEBUG) printf("\nNew command: ");
             }
