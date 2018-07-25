@@ -20,6 +20,7 @@ void interface(){
                 printf("machine moves in micrometers per second when milling\n");
                 printf("-Use 'tranlatingspeed' to configure the speed at which the\n");
                 printf("machine moves in micrometers per second when not milling\n");
+                printf("-Use 'set_xy_absolute' to set the current xy absolute position\n");
                 printf("-Use 'set_xy_origin' to set the origin of the xy axes to the current xy position\n");
                 printf("-Use 'set_z_origin' to set the origin of the z axis to the current z position\n");
                 printf("-Use 'next_xyz_to_origin' to set the next relative point\n");
@@ -101,6 +102,27 @@ void interface(){
                         else if(DEBUG) printf(", but that is not a valid option.\n\n");
                         purge_RXbuffer();               //Limpa o RX_buffer();
                         if(DEBUG) printf("New command: ");
+                        break;
+                    }
+                }
+            }
+            else if(strncmp(RXbuffer,"set_xy_absolute",15) == 0 && str_pos == 16){
+                purge_RXbuffer();               //Limpa o RX_buffer();
+                if(DEBUG) printf("Insert the current absolute xy position in micrometers, in the format (x,y)\n");
+                while(1){
+                    if(RXbuffer[str_pos-1]==13){
+                        sscanf(RXbuffer,"(%s,%s)",buffer1,buffer2);
+                        if(isnumber(buffer1) != 1) printf("%s is not a number\n",buffer1);
+                        if(isnumber(buffer2) != 1) printf("%s is not a number\n",buffer2);
+                        if(isnumber(buffer1) == 1 && isnumber(buffer2) == 1){
+                            sscanf(buffer1,"%ld",&x_absolute);
+                            sscanf(buffer2,"%ld",&y_absolute);
+                            if(DEBUG) printf("\n\nThe values read were (%ld,%ld)\n\n",
+                                    x_absolute,
+                                    y_absolute);
+                        }
+                        purge_RXbuffer();
+                        if(DEBUG) printf("\nNew command: ");
                         break;
                     }
                 }
